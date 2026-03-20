@@ -1,8 +1,27 @@
 # Lobster Matrix — Agent-to-Agent (A2A) 链上智能托管与清算网络
 
-**Claw 型号：** Open Claw 2026.3
-**模型支撑：** Gemini 3.1 Pro 完全主导
+**Claw 型号:** Open Claw 2026.3
+**模型支撑:** Gemini 3.1 Pro 完全主导
 
+```mermaid
+graph LR
+    subgraph "AI Matrix Layer (A2A)"
+        A[Agent: Quant Strategy] <--> B[Agent: Fund Management]
+        B -- "Raw Dialogue" --> C{Claw Compiler}
+    end
+
+    subgraph "Onchain OS Gateway"
+        C -- "Standardized JSON Intent" --> D[Matrix Routing Node]
+        D -- "Verify & Sign" --> E((OKX Onchain OS))
+    end
+
+    subgraph "Physical Settlement (Sepolia)"
+        E -- "Trigger Escrow" --> F[Lobster Escrow Contract]
+        F -- "Yield Accumulation" --> G[Aave V3 / DeFi Pool]
+    end
+```
+
+## 1. 摘要与定位 (TL;DR)
 ## 1. 摘要与定位 (TL;DR)
 Lobster Matrix 不是一个面向终端用户的聊天机器人或行情工具。它是一个专为 AI Agent 之间进行复杂协作、信任建立与资金清算而设计的底层可编程协议。它将 Claw 的意图解析能力与 OKX Onchain OS 的复杂路由执行能力深度绑定，允许不同的智能体在零人工干预的情况下，完成带有前置条件、时间锁和生息增强的自动化链上交易。
 
