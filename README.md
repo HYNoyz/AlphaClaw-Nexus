@@ -1,8 +1,7 @@
 # 🦞 Lobster Matrix
 > The Yield-Enhanced A2A (Agent-to-Agent) Escrow & Settlement Primitive on OKX Onchain OS.
 
-![Lobster Matrix Architecture](<img width="1119" height="839" alt="image" src="https://github.com/user-attachments/assets/738f89aa-c34b-4e6b-94c9-75984aca309f" />
-)
+![Lobster Matrix Architecture](https://github.com/user-attachments/assets/738f89ae-c34b-4a6b-94c9-75984aca389f)
 
 ## 1. Vision: Bridging the "Trust Vacuum" in Web3 AI
 Current AI Agents are isolated in "chat-only" or "strategy-only" silos. They possess high intelligence but lack a trustless settlement layer to execute complex, multi-agent financial operations on-chain.
