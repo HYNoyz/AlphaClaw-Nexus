@@ -1,46 +1,110 @@
+import os
 import requests
-import random
+import logging
+from web3 import Web3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class OKXOnchainService:
+    """
+    AlphaClaw 真实链上执行引擎 (Production Ready)
+    深度聚合 OKX Onchain OS API，完成真实资产路由与签名广播
+    """
     def __init__(self):
-        # Base URL for OKX DEX Aggregator API
-        self.dex_base_url = "https://www.okx.com/api/v5/dex/aggregator"
+        # OKX DEX Aggregator API (公开免鉴权端点)
+        self.okx_api_url = "https://www.okx.com/api/v5/dex/aggregator/swap"
+        
+        # 初始化 Web3 节点 (以 Arbitrum 为例，Gas 低，适合测试)
+        self.w3 = Web3(Web3.HTTPProvider("https://arb1.arbitrum.io/rpc"))
+        
+        self.wallet_address = os.getenv("WALLET_ADDRESS")
+        self.private_key = os.getenv("PRIVATE_KEY")
+        
+        # 常见 Token 地址字典 (Arbitrum 链)
+        self.tokens = {
+            "ETH": "0xEeeeeEeeeEeEeeEeEqEeeEEEheEeeEEEeEeeEEE", # OKX 原生 ETH 标识
+            "USDT": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+            "ARB": "0x912CE59144191C1204E64559FE8253a0e49E6548"
+        }
 
     def get_real_eth_gas(self):
-        """
-        Fetch real-time Ethereum network gas price via multiple RPC endpoints.
-        Implements fallback heuristics to ensure system stability during network congestion.
-        """
-        urls = [
-            "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice",
-            "https://cloudflare-eth.com"
-        ]
+        """获取真实网络 Gas (Gwei)"""
+        try:
+            gas_price = self.w3.eth.gas_price
+            return round(self.w3.from_wei(gas_price, 'gwei'), 2)
+        except Exception as e:
+            logging.error(f"RPC Error: {e}")
+            return 15.0 # Fallback
 
-        for url in urls:
-            try:
-                if "etherscan" in url:
-                    response = requests.get(url, timeout=3).json()
-                    gas_hex = response['result']
-                    return round(int(gas_hex, 16) / 1e9, 2)
-                else:
-                    payload = {"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":73}
-                    response = requests.post(url, json=payload, timeout=3).json()
-                    return round(int(response['result'], 16) / 1e9, 2)
-            except Exception as e:
-                # Log RPC failure, switch to next endpoint
-                continue 
+    def execute_real_swap(self, token_in_sym, token_out_sym, amount_in_ether):
+        """
+        调用 OKX Onchain OS 获取最优路由 calldata，并签名上链
+        """
+        if not self.private_key:
+            return {"status": "error", "msg": "Private key not configured for real transaction."}
+
+        token_in = self.tokens.get(token_in_sym.upper())
+        token_out = self.tokens.get(token_out_sym.upper())
         
-        # Network Fallback: Generate heuristic gas estimation based on historical moving average
-        return round(random.uniform(15.0, 25.0), 2)
+        if not token_in or not token_out:
+            return {"status": "error", "msg": "Unsupported token for real execution."}
 
-    def get_token_quote(self, chain_id, from_token, to_token, amount):
-        """
-        Retrieve optimal routing quote from OKX Onchain OS.
-        Note: Currently using Mock data for hackathon sandbox environment.
-        """
-        price = 2800 if from_token.upper() == "ETH" else 1.0
-        return {
-            "status": "success",
-            "quote": f"{float(amount) * price * 0.99}",
-            "msg": "Optimal price locked via OKX DEX Aggregator"
+        # 转换金额精度 (ETH 默认 18 位)
+        amount_wei = self.w3.to_wei(str(amount_in_ether), 'ether')
+
+        # 1. 向 OKX Onchain OS 请求最优 Swap 路由与构建好的 calldata
+        params = {
+            "chainId": "42161", # Arbitrum One
+            "amount": str(amount_wei),
+            "fromTokenAddress": token_in,
+            "toTokenAddress": token_out,
+            "userWalletAddress": self.wallet_address,
+            "slippage": "0.01" # 1% 滑点容忍度
         }
+        
+        logging.info(f"[OKX Router] Fetching optimal path from Onchain OS for {amount_in_ether} {token_in_sym} -> {token_out_sym}")
+        
+        try:
+            response = requests.get(self.okx_api_url, params=params).json()
+            
+            if response["code"] != "0":
+                return {"status": "error", "msg": f"OKX API Error: {response['msg']}"}
+                
+            tx_data = response["data"][0]["tx"]
+            expected_output = response["data"][0]["routerResult"]["toTokenAmount"]
+            
+            # 2. 构建真实以太坊交易对象
+            transaction = {
+                'to': self.w3.to_checksum_address(tx_data['to']),
+                'value': int(tx_data['value']),
+                'data': tx_data['data'],
+                'gas': int(tx_data['gasLimit']),
+                'gasPrice': int(tx_data['gasPrice']),
+                'nonce': self.w3.eth.get_transaction_count(self.wallet_address),
+                'chainId': 42161
+            }
+
+            # 3. 签名并发送上链 (实弹发射)
+            logging.info("[Execution] Signing transaction via local wallet...")
+            signed_txn = self.w3.eth.account.sign_transaction(transaction, self.private_key)
+            
+            logging.info("[Execution] Broadcasting to network...")
+            tx_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            
+            receipt_hash = self.w3.to_hex(tx_hash)
+            
+            return {
+                "status": "success",
+                "quote": str(self.w3.from_wei(int(expected_output), 'mwei')), # 假设目标是 USDT (6位精度)
+                "msg": f"Transaction Executed. Hash: {receipt_hash}"
+            }
+
+        except Exception as e:
+            return {"status": "error", "msg": f"Execution failed: {str(e)}"}
+
+# 沙盒独立测试入口
+if __name__ == "__main__":
+    okx_service = OKXOnchainService()
+    # 警告：取消下方注释将花费真实的 ETH
+    # print(okx_service.execute_real_swap("ETH", "USDT", 0.0001))
