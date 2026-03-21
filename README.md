@@ -17,6 +17,11 @@ AlphaClaw-Nexus 不是一个工具，而是一个具备自治调度能力的 AI 
 ## 🚀 核心用例演示 (Demo Showcase)
 - **用例 A (顺滑执行):** `"等 gas 跌到 500 以下，查一下 ARB 代币，没风险就用 1 ETH 买入。"` -> ✅ 触发监控 -> ✅ 审计绿灯 -> 💰 OKX 路由最优报价成交。
 - **用例 B (风控熔断):** `"不管 gas 多少，马上帮我查一下 SCAM 币，然后买 100 U。"` -> 🚨 触发 Aegis 致命风险警报 -> ❌ 拒绝授权，强制中止执行。
+- ## ⛓️ 主网实弹执行记录 (Live Mainnet Execution Proof)
+AlphaClaw-Nexus 并非脆弱的概念演示，其底层调度引擎具备真实主网环境下的状态流转与签名广播能力。
+- **执行动作:** NLP 意图编译 -> Lobster Aegis 审计通过 -> ECDSA 私钥签名 -> 智能合约底层交互
+- **主网 TxHash:** `0x665a2ff1ce30d62d986c245a1a0387f960d4ca4558a80a1dbdcf24cf46349e98`
+- **网络环境:** Arbitrum One Mainnet
 
 ## ⚠️ Evaluation Notice (评委测试须知)
 当前开源于 GitHub 的版本默认运行在 **Sandbox Simulation Mode (沙盒模拟模式)**：
