@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  alphaclaw-nexus:
+    build: .
+    container_name: alphaclaw_nexus_engine
+    restart: unless-stopped
+    environment:
+      - TG_TOKEN=${TG_TOKEN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - WALLET_ADDRESS=${WALLET_ADDRESS}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+    volumes:
+      - ./logs:/app/logs
