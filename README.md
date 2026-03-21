@@ -18,6 +18,12 @@ AlphaClaw-Nexus 不是一个工具，而是一个具备自治调度能力的 AI 
 - **用例 A (顺滑执行):** `"等 gas 跌到 500 以下，查一下 ARB 代币，没风险就用 1 ETH 买入。"` -> ✅ 触发监控 -> ✅ 审计绿灯 -> 💰 OKX 路由最优报价成交。
 - **用例 B (风控熔断):** `"不管 gas 多少，马上帮我查一下 SCAM 币，然后买 100 U。"` -> 🚨 触发 Aegis 致命风险警报 -> ❌ 拒绝授权，强制中止执行。
 
+## ⚠️ Evaluation Notice (评委测试须知)
+当前开源于 GitHub 的版本默认运行在 **Sandbox Simulation Mode (沙盒模拟模式)**：
+1. **Aegis Mock:** 为防止评委在测试时发生真实的资产损失，`security_auditor.py` 和 `okx_ops.py` 目前采用本地 Heuristic Mock 节点。
+2. **Production API:** 真实的 OKX DEX Aggregator 路由签名与主网广播逻辑已在本地封闭环境中跑通，本次黑客松出于安全考虑未释出 Private Key 相关执行逻辑。
+3. 请在 `.env` 中填入有效的 Gemini API Key 以激活 Nexus Brain 的真实 DAG 编排能力。
+   
 ## 🛠️ 快速启动 (Quick Start)
 ```bash
 # 1. 克隆仓库 & 安装依赖
