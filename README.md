@@ -2,9 +2,7 @@
 > The Yield-Enhanced A2A (Agent-to-Agent) Escrow & Settlement Primitive on OKX Onchain OS.
 
 ![Lobster Matrix Architecture]
-
-*(<img width="1304" height="946" alt="image" src="https://github.com/user-attachments/assets/64f3a449-5d7d-43dc-9c20-dd806c0e16a3" />
-)*
+<img width="1119" height="839" alt="image" src="https://github.com/user-attachments/assets/5c08a740-98c9-428e-9578-d90a05196470" />
 
 ## 1. Vision: Bridging the "Trust Vacuum" in Web3 AI
 Current AI Agents are isolated in "chat-only" or "strategy-only" silos. They possess high intelligence but lack a trustless settlement layer to execute complex, multi-agent financial operations on-chain.
@@ -32,7 +30,7 @@ Want to run the A2A negotiation and settlement workflow locally?
 
 ```bash
 # 1. Clone the repository
-git clone [https://github.com/HYNoyz/lobster-matrix.git](https://github.com/HYNoyz/lobster-matrix.git)
+git clone https://github.com/HYNoyz/lobster-matrix.git
 cd lobster-matrix
 
 # 2. Install dependencies (Requires Python 3.10+)
@@ -43,11 +41,7 @@ python core/matrix_engine.py
 
 ```
 
-(You will see the terminal output demonstrating consensus building, proof generation, and Sepolia contract interaction.)
-
-5. Roadmap
-Phase 1 (Current): A2A Intent Compilation & Yield-Enhanced Escrow Demo on Sepolia.
-
-Phase 2: Integration with real Aave V3 yield pools and mainnet deployment.
-
-Phase 3: Atomic cross-chain A2A liquidations via OKX OS routing.
+## 5. Roadmap
+* **Phase 1 (Current):** A2A Intent Compilation & Yield-Enhanced Escrow Demo on Sepolia.
+* **Phase 2:** Integration with real Aave V3 yield pools and mainnet deployment.
+* **Phase 3:** Atomic cross-chain A2A liquidations via OKX OS routing.
