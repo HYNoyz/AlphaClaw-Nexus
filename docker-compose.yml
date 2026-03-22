@@ -1,13 +1,12 @@
 version: '3.8'
+
 services:
-  alphaclaw-nexus:
+  alphaclaw-core:
     build: .
-    container_name: alphaclaw_nexus_engine
+    container_name: alphaclaw-nexus-engine
+    ports:
+      - "5000:5000"
     restart: unless-stopped
-    environment:
-      - TG_TOKEN=${TG_TOKEN}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - PRIVATE_KEY=${PRIVATE_KEY}
-    volumes:
-      - ./logs:/app/logs
+    # 如果你的 TG Bot 需要读取本地的 .env 里的私钥或 API Key，加上这行：
+    env_file:
+      - .env
